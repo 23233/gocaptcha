@@ -26,7 +26,7 @@ const (
 	DefaultFrequency = 0.05
 )
 
-var TextCharacters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+var TextCharacters = []rune("ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz0123456789")
 
 const (
 	ImageFormatPng ImageFormat = iota
@@ -148,14 +148,65 @@ func GenerateCaptcha(width, height int, textLength int, difficulty CaptchaDiffic
 	// 生成随机文本
 	text = RandText(textLength)
 
+	var bgColor color.RGBA
+	var textColor color.RGBA
+	if difficulty == CaptchaVeryEasy {
+		// 随机选择一组高对比度的颜色组合
+		switch rand.Intn(10) {
+		case 0:
+			// 白底深蓝
+			bgColor = color.RGBA{R: 255, G: 255, B: 255, A: 255}
+			textColor = color.RGBA{R: 0, G: 0, B: 128, A: 255}
+		case 1:
+			// 白底深绿
+			bgColor = color.RGBA{R: 255, G: 255, B: 255, A: 255}
+			textColor = color.RGBA{R: 0, G: 100, B: 0, A: 255}
+		case 2:
+			// 浅黄底黑
+			bgColor = color.RGBA{R: 255, G: 255, B: 200, A: 255}
+			textColor = color.RGBA{R: 0, G: 0, B: 0, A: 255}
+		case 3:
+			// 浅蓝底深红
+			bgColor = color.RGBA{R: 220, G: 240, B: 255, A: 255}
+			textColor = color.RGBA{R: 180, G: 0, B: 0, A: 255}
+		case 4:
+			// 白底深紫
+			bgColor = color.RGBA{R: 255, G: 255, B: 255, A: 255}
+			textColor = color.RGBA{R: 76, G: 0, B: 153, A: 255}
+		case 5:
+			// 浅绿底深蓝
+			bgColor = color.RGBA{R: 220, G: 255, B: 220, A: 255}
+			textColor = color.RGBA{R: 0, G: 0, B: 153, A: 255}
+		case 6:
+			// 浅灰底深红
+			bgColor = color.RGBA{R: 245, G: 245, B: 245, A: 255}
+			textColor = color.RGBA{R: 153, G: 0, B: 0, A: 255}
+		case 7:
+			// 米色底深棕
+			bgColor = color.RGBA{R: 255, G: 248, B: 220, A: 255}
+			textColor = color.RGBA{R: 139, G: 69, B: 19, A: 255}
+		case 8:
+			// 淡青底深紫红
+			bgColor = color.RGBA{R: 225, G: 255, B: 255, A: 255}
+			textColor = color.RGBA{R: 139, G: 0, B: 139, A: 255}
+		case 9:
+			// 浅粉底深蓝绿
+			bgColor = color.RGBA{R: 255, G: 240, B: 245, A: 255}
+			textColor = color.RGBA{R: 0, G: 102, B: 102, A: 255}
+		}
+	} else {
+		bgColor = RandLightColor()
+		textColor = RandDeepColor()
+	}
+
 	// 创建验证码图片
-	captchaImage := New(width, height, RandLightColor())
+	captchaImage := New(width, height, bgColor)
 
 	// 根据难度选择不同的绘制参数
 	switch difficulty {
 	case CaptchaVeryEasy:
 		err = captchaImage.
-			DrawBorder(RandDeepColor()).
+			DrawBorder(textColor).
 			// 无扭曲的文字
 			DrawText(NewTwistTextDrawer(DefaultDPI, 0, 0), text).
 			Error
