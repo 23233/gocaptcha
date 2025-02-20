@@ -27,7 +27,7 @@ func TestCaptchaImage_Encode(t *testing.T) {
 }
 
 func TestGenerateCaptcha(t *testing.T) {
-	gotText, gotImgBytes, err := GenerateCaptcha(180, 60, 4, CaptchaEasy)
+	gotText, gotImgBytes, err := GenerateCaptcha(180, 60, 4, CaptchaVeryEasy)
 	if err != nil {
 		t.Fatal(err)
 	}

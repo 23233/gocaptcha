@@ -133,9 +133,13 @@ func (captcha *CaptchaImage) DrawBlur(drawer BlurDrawer, kernelSize int, sigma f
 type CaptchaDifficulty int
 
 const (
-	// CaptchaEasy 简单难度
-	CaptchaEasy CaptchaDifficulty = iota
-	// CaptchaHard 困难难度
+	// CaptchaVeryEasy 非常简单难度 - 清晰文字，无噪点，无扭曲
+	CaptchaVeryEasy CaptchaDifficulty = iota
+	// CaptchaEasy 简单难度 - 轻微扭曲，少量噪点
+	CaptchaEasy
+	// CaptchaMedium 中等难度 - 原来的简单模式
+	CaptchaMedium
+	// CaptchaHard 困难难度 - 原来的困难模式
 	CaptchaHard
 )
 
@@ -148,7 +152,24 @@ func GenerateCaptcha(width, height int, textLength int, difficulty CaptchaDiffic
 	captchaImage := New(width, height, RandLightColor())
 
 	// 根据难度选择不同的绘制参数
-	if difficulty == CaptchaEasy {
+	switch difficulty {
+	case CaptchaVeryEasy:
+		err = captchaImage.
+			DrawBorder(RandDeepColor()).
+			// 无扭曲的文字
+			DrawText(NewTwistTextDrawer(DefaultDPI, 0, 0), text).
+			Error
+
+	case CaptchaEasy:
+		err = captchaImage.
+			DrawBorder(RandDeepColor()).
+			// 极轻微的扭曲
+			DrawText(NewTwistTextDrawer(DefaultDPI, DefaultAmplitude/4, DefaultFrequency/4), text).
+			// 极少量噪点
+			DrawNoise(NoiseDensityLower/2, NewPointNoiseDrawer()).
+			Error
+
+	case CaptchaMedium:
 		err = captchaImage.
 			DrawBorder(RandDeepColor()).
 			// 只使用较低密度的点状噪点
@@ -160,7 +181,8 @@ func GenerateCaptcha(width, height int, textLength int, difficulty CaptchaDiffic
 			// 减轻模糊效果
 			DrawBlur(NewGaussianBlur(), 1, 0.3).
 			Error
-	} else {
+
+	default: // CaptchaHard
 		err = captchaImage.
 			DrawBorder(RandDeepColor()).
 			DrawNoise(NoiseDensityHigh, NewTextNoiseDrawer(72)).

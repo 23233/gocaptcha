@@ -33,7 +33,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 func Get(w http.ResponseWriter, r *http.Request) {
 
-	_, bt, err := gocaptcha.GenerateCaptcha(dx, dy, 4, gocaptcha.CaptchaEasy)
+	_, bt, err := gocaptcha.GenerateCaptcha(dx, dy, 4, gocaptcha.CaptchaVeryEasy)
 
 	if err != nil {
 		fmt.Println(err)
