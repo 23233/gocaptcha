@@ -1,6 +1,9 @@
 package gocaptcha
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestCaptchaImage_Encode(t *testing.T) {
 	err := SetFontPath("./fonts")
@@ -20,5 +23,21 @@ func TestCaptchaImage_Encode(t *testing.T) {
 		Error
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestGenerateCaptcha(t *testing.T) {
+	gotText, gotImgBytes, err := GenerateCaptcha(180, 60, 4, CaptchaEasy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(gotText) != 4 {
+		t.Errorf("GenerateCaptcha() gotText = %v, want %v", gotText, 4)
+	}
+
+	// 将生成的图片保存到文件
+	err = os.WriteFile("test_captcha.png", gotImgBytes, 0644)
+	if err != nil {
+		t.Fatal("Failed to save captcha image:", err)
 	}
 }

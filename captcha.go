@@ -1,6 +1,7 @@
 package gocaptcha
 
 import (
+	"bytes"
 	"errors"
 	"image"
 	"image/color"
@@ -126,4 +127,61 @@ func (captcha *CaptchaImage) DrawBlur(drawer BlurDrawer, kernelSize int, sigma f
 	}
 	captcha.Error = drawer.DrawBlur(captcha.nrgba, kernelSize, sigma)
 	return captcha
+}
+
+// CaptchaDifficulty 验证码难度级别
+type CaptchaDifficulty int
+
+const (
+	// CaptchaEasy 简单难度
+	CaptchaEasy CaptchaDifficulty = iota
+	// CaptchaHard 困难难度
+	CaptchaHard
+)
+
+// GenerateCaptcha 生成验证码图片和对应的文本
+func GenerateCaptcha(width, height int, textLength int, difficulty CaptchaDifficulty) (text string, imgBytes []byte, err error) {
+	// 生成随机文本
+	text = RandText(textLength)
+
+	// 创建验证码图片
+	captchaImage := New(width, height, RandLightColor())
+
+	// 根据难度选择不同的绘制参数
+	if difficulty == CaptchaEasy {
+		err = captchaImage.
+			DrawBorder(RandDeepColor()).
+			// 只使用较低密度的点状噪点
+			DrawNoise(NoiseDensityLower, NewPointNoiseDrawer()).
+			// 使用更温和的文字扭曲参数
+			DrawText(NewTwistTextDrawer(DefaultDPI, DefaultAmplitude/2, DefaultFrequency/2), text).
+			// 只保留一条干扰线
+			DrawLine(NewBeeline(), RandDeepColor()).
+			// 减轻模糊效果
+			DrawBlur(NewGaussianBlur(), 1, 0.3).
+			Error
+	} else {
+		err = captchaImage.
+			DrawBorder(RandDeepColor()).
+			DrawNoise(NoiseDensityHigh, NewTextNoiseDrawer(72)).
+			DrawNoise(NoiseDensityLower, NewPointNoiseDrawer()).
+			DrawLine(NewBezier3DLine(), RandDeepColor()).
+			DrawText(NewTwistTextDrawer(DefaultDPI, DefaultAmplitude, DefaultFrequency), text).
+			DrawLine(NewBeeline(), RandDeepColor()).
+			DrawBlur(NewGaussianBlur(), DefaultBlurKernelSize, DefaultBlurSigma).
+			Error
+	}
+
+	if err != nil {
+		return "", nil, err
+	}
+
+	// 将图片编码为字节数组
+	buf := new(bytes.Buffer)
+	err = captchaImage.Encode(buf, ImageFormatJpeg)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return text, buf.Bytes(), nil
 }

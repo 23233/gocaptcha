@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/lifei6671/gocaptcha"
+	"github.com/23233/gocaptcha"
 )
 
 const (
@@ -32,28 +32,13 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	_ = t.Execute(w, nil)
 }
 func Get(w http.ResponseWriter, r *http.Request) {
-	captchaImage := gocaptcha.New(dx, dy, gocaptcha.RandLightColor())
-	err := captchaImage.
-		DrawBorder(gocaptcha.RandDeepColor()).
-		DrawNoise(gocaptcha.NoiseDensityHigh, gocaptcha.NewTextNoiseDrawer(72)).
-		DrawNoise(gocaptcha.NoiseDensityLower, gocaptcha.NewPointNoiseDrawer()).
-		DrawLine(gocaptcha.NewBezier3DLine(), gocaptcha.RandDeepColor()).
-		DrawText(gocaptcha.NewTwistTextDrawer(gocaptcha.DefaultDPI, gocaptcha.DefaultAmplitude, gocaptcha.DefaultFrequency), gocaptcha.RandText(4)).
-		DrawLine(gocaptcha.NewBeeline(), gocaptcha.RandDeepColor()).
-		//DrawLine(gocaptcha.NewHollowLine(), gocaptcha.RandLightColor()).
-		DrawBlur(gocaptcha.NewGaussianBlur(), gocaptcha.DefaultBlurKernelSize, gocaptcha.DefaultBlurSigma).
-		Error
+
+	_, bt, err := gocaptcha.GenerateCaptcha(dx, dy, 4, gocaptcha.CaptchaEasy)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	_ = captchaImage.Encode(w, gocaptcha.ImageFormatJpeg)
-}
+	_, _ = w.Write(bt)
 
-func init() {
-	err := gocaptcha.SetFontPath("../fonts/")
-	if err != nil {
-		panic(err)
-	}
 }

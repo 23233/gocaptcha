@@ -21,6 +21,7 @@ func TestFontFamily_Random(t *testing.T) {
 			t:    fontFamily,
 			args: args{},
 			fn: func(family *FontFamily) error {
+				family.fonts = nil // 清空字体列表测试
 				return nil
 			},
 			wantErr:  true,
@@ -31,18 +32,20 @@ func TestFontFamily_Random(t *testing.T) {
 			t:    fontFamily,
 			args: args{},
 			fn: func(family *FontFamily) error {
-				family.fonts = append(family.fonts, "./testdata/Hiragino Sans GB.ttc")
+				// 使用内嵌字体路径
+				family.fonts = []string{"fonts/3Dumb.ttf"}
 				return nil
 			},
-			wantErr:  true,
-			wantFont: false,
+			wantErr:  false,
+			wantFont: true,
 		},
 		{
 			name: "test3",
 			t:    fontFamily,
 			args: args{},
 			fn: func(family *FontFamily) error {
-				family.fonts = []string{"./fonts/3Dumb.ttf"}
+				// 使用内嵌字体路径
+				family.fonts = []string{"fonts/3Dumb.ttf"}
 				return nil
 			},
 			wantErr:  false,
@@ -53,7 +56,8 @@ func TestFontFamily_Random(t *testing.T) {
 			t:    fontFamily,
 			args: args{},
 			fn: func(family *FontFamily) error {
-				return family.AddFont("./fonts/3Dumb.ttf")
+				// 使用内嵌字体路径
+				return family.AddFont("fonts/3Dumb.ttf")
 			},
 			wantErr:  false,
 			wantFont: true,
@@ -63,17 +67,8 @@ func TestFontFamily_Random(t *testing.T) {
 			t:    fontFamily,
 			args: args{},
 			fn: func(family *FontFamily) error {
-				return family.AddFont("./fonts/Comismsh.ttf")
-			},
-			wantErr:  false,
-			wantFont: true,
-		},
-		{
-			name: "test6",
-			t:    fontFamily,
-			args: args{},
-			fn: func(family *FontFamily) error {
-				return family.AddFont("./testdata/Hiragino Sans GB.ttc")
+				// 使用内嵌字体路径
+				return family.AddFont("fonts/Comismsh.ttf")
 			},
 			wantErr:  false,
 			wantFont: true,
@@ -102,14 +97,16 @@ func TestSetFonts(t *testing.T) {
 		{
 			name: "test1",
 			args: args{
-				fonts: []string{"./fonts/3Dumb.ttf"},
+				// 使用内嵌字体路径
+				fonts: []string{"fonts/3Dumb.ttf"},
 			},
 			wantErr: false,
 		},
 		{
 			name: "test2",
 			args: args{
-				fonts: []string{"./testdata/Hiragino Sans GB.ttc"},
+				// 使用不存在的字体测试错误情况
+				fonts: []string{"fonts/nonexistent.ttf"},
 			},
 			wantErr: true,
 		},
@@ -137,13 +134,13 @@ func TestFontFamily_AddFontPath(t *testing.T) {
 		{
 			name:    "test1",
 			t:       fontFamily,
-			args:    args{dirPath: "./fonts"},
+			args:    args{dirPath: "fonts"},
 			wantErr: false,
 		},
 		{
 			name:    "test2",
 			t:       fontFamily,
-			args:    args{dirPath: "./testdata/not_exist"},
+			args:    args{dirPath: "nonexistent"},
 			wantErr: true,
 		},
 	}

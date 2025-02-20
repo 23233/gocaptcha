@@ -17,10 +17,12 @@
 #### 使用：
 
 ```
-	go get github.com/lifei6671/gocaptcha
+	go get github.com/23233/gocaptcha
 ```
 
 #### 使用的类库
+
+内置了字体与难度调节
 
 ```
 	go get github.com/golang/freetype
@@ -31,37 +33,7 @@
 #### 代码
 具体实例可以查看example目录，有生成的验证码图片。
 
-```
-	
-func Get(w http.ResponseWriter, r *http.Request) {
-	captchaImage := gocaptcha.New(dx, dy, gocaptcha.RandLightColor())
-	err := captchaImage.
-		DrawBorder(gocaptcha.RandDeepColor()).
-		DrawNoise(gocaptcha.NoiseDensityHigh, gocaptcha.NewTextNoiseDrawer(gocaptcha.DefaultDPI)).
-		DrawNoise(gocaptcha.NoiseDensityLower, gocaptcha.NewPointNoiseDrawer()).
-		DrawLine(gocaptcha.NewBezier3DLine(), gocaptcha.RandDeepColor()).
-		DrawText(gocaptcha.NewTwistTextDrawer(gocaptcha.DefaultDPI, gocaptcha.DefaultAmplitude, gocaptcha.DefaultFrequency), gocaptcha.RandText(4)).
-		DrawLine(gocaptcha.NewBeeline(), gocaptcha.RandDeepColor()).
-		//DrawLine(gocaptcha.NewHollowLine(), gocaptcha.RandLightColor()).
-		DrawBlur(gocaptcha.NewGaussianBlur(), gocaptcha.DefaultBlurKernelSize, gocaptcha.DefaultBlurSigma).
-		Error
-	
-	if err != nil {
-		fmt.Println(err)
-	}
-	
-	_ = captchaImage.Encode(w, gocaptcha.ImageFormatJpeg)
-}
 
-// 初始化字体
-func init() {
-	err := gocaptcha.SetFontPath("../fonts/")
-	if err != nil {
-		panic(err)
-	}
-}
-
-```
 
 
 
